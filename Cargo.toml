@@ -1,5 +1,5 @@
 [package]
-name = "pokedot"
+name = "poketerm"
 version = "0.1.0"
 authors = ["nr"]
 edition = "2018"
