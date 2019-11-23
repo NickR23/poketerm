@@ -1,4 +1,3 @@
-pub mod api_tools;
-pub mod pokedex {
-    pub mod lists;
-}
+pub mod Api_Tools;
+
+pub mod Pokedex;

@@ -8,7 +8,7 @@ use curl::easy::Easy;
 ///# Example
 ///```
 ///let data = r#"{"name":"Sally", "age":20}"#;
-///let response = poketerm::api_tools::parse_response(&data).unwrap();
+///let response = poketerm::Api_Tools::api_tools::parse_response(&data).unwrap();
 ///```
 pub fn parse_response(data: &str) -> Result<Value> {
     //Rust cannot infer this type (v)
@@ -23,7 +23,7 @@ pub fn parse_response(data: &str) -> Result<Value> {
 ///# Example
 ///```
 ///let url = "https://pokeapi.co/api/v2/pokemon/ditto/";
-///let response = poketerm::api_tools::curl_url(&url).unwrap();
+///let response = poketerm::Api_Tools::api_tools::curl_url(&url).unwrap();
 ///```
 pub fn curl_url(url: &str) -> Result<String> {
     let mut handle = Easy::new();
