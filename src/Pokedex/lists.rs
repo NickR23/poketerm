@@ -1,4 +1,4 @@
-use crate::api_tools;
+use crate::Api_Tools::api_tools;
 use std::process;
 use std::error;
 use std::collections::HashMap;
@@ -6,7 +6,7 @@ use std::collections::HashMap;
 ///Returns a HashMap<String,String> of all of the pokemon and their urls
 ///# Example
 ///```
-///let map = poketerm::pokedex::lists::get_all_pokemon();
+///let map = poketerm::Pokedex::lists::get_all_pokemon();
 ///```
 pub fn get_all_pokemon() -> Result<HashMap<String,String>, Box<dyn error::Error>>{
   let url = "https://pokeapi.co/api/v2/pokemon/";
