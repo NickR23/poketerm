@@ -1,5 +1,5 @@
-use poketerm::ui::driver;
+use poketerm::ui::app;
 
 fn main() {
-  driver::draw_ui().unwrap();
+  app::draw_ui().unwrap();
 }
