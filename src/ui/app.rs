@@ -4,7 +4,7 @@ use tui::Terminal;
 use termion::event::Key;
 use tui::backend::TermionBackend;
 use termion::raw::IntoRawMode;
-use tui::widgets::{Widget, Block, Borders, SelectableList};
+use tui::widgets::{Widget, Block, Borders, Text, Paragraph, SelectableList};
 use tui::layout::{Layout, Constraint, Direction, Corner};
 use termion::screen::AlternateScreen;
 use termion::input::MouseTerminal;
@@ -37,7 +37,8 @@ pub fn draw_ui() -> Result<(), io::Error> {
                 .margin(1)
                 .constraints(
                 [
-                    Constraint::Percentage(100)
+                    Constraint::Percentage(50),
+                    Constraint::Percentage(50)
                 ].as_ref()
                 )
                 .split(f.size());
@@ -46,6 +47,15 @@ pub fn draw_ui() -> Result<(), io::Error> {
                 .block(Block::default().borders(Borders::ALL).title("Pokemon"))
                 .items(&names)
                 .render(&mut f, chunks[0]);
+
+            let text= [
+                Text::raw("First line\n"),
+                Text::styled("Second line\n", Style::default().fg(Color::Red))
+            ];
+            Paragraph::new(text.iter())
+                .block(Block::default().borders(Borders::ALL).title("Info"))
+                .wrap(true)
+                .render(&mut f, chunks[1]);
         });
 
         match events.next().unwrap() {
