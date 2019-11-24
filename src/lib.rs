@@ -1,5 +1,5 @@
-pub mod Api_Tools;
+pub mod api_tools;
 
-pub mod Pokedex;
+pub mod pokedex;
 
-pub mod UI;
+pub mod ui;
