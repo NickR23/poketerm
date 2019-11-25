@@ -24,7 +24,7 @@ impl Namelist {
     async fn new(pokedex: &lists::Pokedex) -> Namelist {
         Namelist {
             names: pokedex.get_pokemon_names(),
-            selected: None
+            selected: Some(0)
         }
     }   
 }
@@ -79,8 +79,9 @@ fn draw_ui(mut pokedex: lists::Pokedex) -> Result<(), io::Error> {
                 .split(f.size());
             
             let name_list_style = Style::default().fg(Color::Black).bg(Color::White);
+            let title_text = format!("Pokemon ({})", name_list.names.len());
             SelectableList::default()
-                .block(Block::default().borders(Borders::ALL).title("Pokemon"))
+                .block(Block::default().borders(Borders::ALL).title(&title_text))
                 .items(&name_list.names)
                 .select(name_list.selected)
                 .style(name_list_style)
