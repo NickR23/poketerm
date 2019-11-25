@@ -29,7 +29,6 @@ fn pokemon_names() -> Vec<String> {
     let mut names: Vec<String> = Vec::new();
     for name in map.keys() {
         let mut s = name.clone();
-        s = s.replace("\"", "");
         s = name_ify(s);
         names.push(s);
     }
