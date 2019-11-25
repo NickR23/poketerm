@@ -67,7 +67,8 @@ fn draw_ui(mut name_list: Namelist) -> Result<(), io::Error> {
     terminal.hide_cursor()?;
 
     let events = Events::new();
-
+    
+    //Main event loop
     loop {
         terminal.draw(|mut f| {
             let chunks = Layout::default()
@@ -114,6 +115,18 @@ fn draw_ui(mut name_list: Namelist) -> Result<(), io::Error> {
                             Some(selected + 1)
                         }
                     } else {
+                        Some(0)
+                    }
+                }
+                Key::Up => {
+                    name_list.selected = if let Some(selected) = name_list.selected {
+                        if selected <= 0 {
+                            Some(name_list.names.len() - 1)
+                        } else {
+                            Some(selected - 1)
+
+                        }
+                    } else  {
                         Some(0)
                     }
                 }
