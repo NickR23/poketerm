@@ -17,15 +17,19 @@ use crate::ui::panels;
 use super::super::pokedex::lists;
 
 
+struct frame_list{
+    frames: Vec<Box<dyn Widget>>
+}
+
 pub fn runner() -> Result<(), io::Error> {
     println!("... Loading pokemon dictionary ...");
-    let mut pokedex = block_on(lists::Pokedex::new());
+    let pokedex = block_on(lists::Pokedex::new());
     draw_ui(pokedex)?;
     Ok(())
 }
 
 ///Handles drawing the ui.
-fn draw_ui(mut pokedex: lists::Pokedex) -> Result<(), io::Error> {
+fn draw_ui(pokedex: lists::Pokedex) -> Result<(), io::Error> {
     let stdout = io::stdout().into_raw_mode()?;
     let stdout = MouseTerminal::from(stdout);
     let stdout = AlternateScreen::from(stdout);
@@ -91,7 +95,7 @@ fn draw_ui(mut pokedex: lists::Pokedex) -> Result<(), io::Error> {
                 }
                 Key::Right => {
                     let selected_name = &name_list.names[name_list.selected.unwrap()];
-                    let mut name_info = pokedex.get_info(selected_name).unwrap_or_else( |err| {
+                    let name_info = pokedex.get_info(selected_name).unwrap_or_else( |err| {
                         println!("{:?}", err);
                         process::exit(1);
                     });
