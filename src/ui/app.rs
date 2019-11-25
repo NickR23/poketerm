@@ -14,9 +14,26 @@ use tui::style::{Color, Modifier, Style};
 //This module import is probably too verbose...
 use super::super::pokedex::lists;
 
+fn name_ify (s1: String) -> String {
+    let mut c = s1.chars();
+    //Get the first char 
+    match c.next() {
+        None => String::new(),
+        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+    }
+}
+
+
 fn pokemon_names() -> Vec<String> {
     let map: BTreeMap<String, String> = lists::get_all_pokemon().unwrap();
-    map.keys().cloned().collect()
+    let mut names: Vec<String> = Vec::new();
+    for name in map.keys() {
+        let mut s = name.clone();
+        s = s.replace("\"", "");
+        s = name_ify(s);
+        names.push(s);
+    }
+    names
 }
 
 struct Namelist {
