@@ -24,7 +24,7 @@ fn get_page(url: &str) -> serde_json::Result<serde_json::Value> {
 }
 
 ///Returns JSON formatted String containing information about the given pokemon
-pub fn get_info(name: &str, map: &BTreeMap<String, String>) -> Result<serde_json::Value, String> {
+pub async fn get_info(name: &str, map: &BTreeMap<String, String>) -> Result<serde_json::Value, String> {
     if !map.contains_key(&name.to_string()){
         return Err("Name not found".to_string());
     }

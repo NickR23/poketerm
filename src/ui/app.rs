@@ -49,9 +49,26 @@ impl Namelist {
     }   
 }
 
+struct Info_text<'b> {
+    texts: Vec<Text<'b>>
+}
+
+impl Info_text<'_> {
+    fn add_text(&mut self, s: String) {
+        let text = Text::raw(s);
+        self.texts.push(text);
+    }
+    fn clear_text(&mut self) {
+        self.texts = Vec::new();
+    }
+}
+
+
+
+
 pub fn runner() -> Result<(), io::Error> {
     println!("... Loading pokemon dictionary ...");
-    let name_list = block_on(Namelist::new());
+    let mut name_list = block_on(Namelist::new());
     draw_ui(name_list)?;
     Ok(())
 }
@@ -66,6 +83,8 @@ fn draw_ui(mut name_list: Namelist) -> Result<(), io::Error> {
     terminal.hide_cursor()?;
 
     let events = Events::new();
+    
+    let mut info_text = Info_text{texts: Vec::new()};
     
     //Main event loop
     loop {
@@ -90,12 +109,8 @@ fn draw_ui(mut name_list: Namelist) -> Result<(), io::Error> {
                 .highlight_style(name_list_style.fg(Color::LightGreen).modifier(Modifier::BOLD))
                 .highlight_symbol(">")
                 .render(&mut f, chunks[0]);
-
-            let text= [
-                Text::raw("First line\n"),
-                Text::styled("Second line\n", Style::default().fg(Color::Red))
-            ];
-            Paragraph::new(text.iter())
+            
+            Paragraph::new(info_text.texts.iter())
                 .block(Block::default().borders(Borders::ALL).title("Info"))
                 .wrap(true)
                 .render(&mut f, chunks[1]);
@@ -116,6 +131,9 @@ fn draw_ui(mut name_list: Namelist) -> Result<(), io::Error> {
                     } else {
                         Some(0)
                     }
+                }
+                Key::Right => {
+                    info_text.add_text("TEST".to_string());
                 }
                 Key::Up => {
                     name_list.selected = if let Some(selected) = name_list.selected {
