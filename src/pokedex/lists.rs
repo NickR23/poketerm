@@ -1,9 +1,9 @@
 use crate::api_tools::tools;
 use std::process;
 use std::error;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::convert::TryInto;
-fn populate_map(page: &serde_json::Value, map: &mut HashMap<String,String>) {
+fn populate_map(page: &serde_json::Value, map: &mut BTreeMap<String,String>) {
   for pokemon in page["results"].as_array().unwrap() {
     let pokemon_object = pokemon.as_object().unwrap();
         map.insert(
@@ -27,8 +27,8 @@ fn get_page(url: &str) -> serde_json::Result<serde_json::Value> {
 ///```
 ///let map = poketerm::pokedex::lists::get_all_pokemon().unwrap();
 ///```
-pub fn get_all_pokemon() -> Result<HashMap<String,String>, Box<dyn error::Error>>{ 
-  let mut pokemon_map:HashMap<String, String> = HashMap::new();
+pub fn get_all_pokemon() -> Result<BTreeMap<String,String>, Box<dyn error::Error>>{ 
+  let mut pokemon_map:BTreeMap<String, String> = BTreeMap::new();
   let url = "https://pokeapi.co/api/v2/pokemon/";
   let mut data = get_page(&url).unwrap();
   //Get total number of pokemon
