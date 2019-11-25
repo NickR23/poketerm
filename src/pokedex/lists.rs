@@ -86,7 +86,13 @@ impl Pokedex {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
+    #[test]
+    fn test_name_ify() {
+        let mut name = String::from("nick");
+        name = name_ify(name);
+        assert_eq!(name, "Nick");
+    }
 
     #[test]
     fn test_get_info() {
