@@ -3,12 +3,13 @@ use std::process;
 use std::error;
 use std::collections::BTreeMap;
 use std::convert::TryInto;
+
 fn populate_map(page: &serde_json::Value, map: &mut BTreeMap<String,String>) {
   for pokemon in page["results"].as_array().unwrap() {
     let pokemon_object = pokemon.as_object().unwrap();
         map.insert(
-            pokemon_object["name"].to_string(),
-            pokemon_object["url"].to_string()
+            pokemon_object["name"].to_string().replace("\"", ""),
+            pokemon_object["url"].to_string().replace("\"","")
         );
   }
 }
@@ -20,6 +21,17 @@ fn get_page(url: &str) -> serde_json::Result<serde_json::Value> {
     });
   let response = tools::parse_response(&data).unwrap();
   Ok(response)
+}
+
+///Returns JSON formatted String containing information about the given pokemon
+pub fn get_info(name: &str, map: &BTreeMap<String, String>) -> Result<serde_json::Value, String> {
+    if !map.contains_key(&name.to_string()){
+        return Err("Name not found".to_string());
+    }
+    let url = map.get(&name.to_string()).unwrap();
+    let url = url.to_string();
+    let info = get_page(&url).unwrap();
+    Ok(info)
 }
 
 ///Returns a HashMap<String,String> of all of the pokemon and their urls
@@ -48,6 +60,15 @@ pub fn get_all_pokemon() -> Result<BTreeMap<String,String>, Box<dyn error::Error
 #[cfg(test)]
 mod tests {
     use super::*;
+    
+
+    #[test]
+    fn test_get_info() {
+        let mut map:BTreeMap<String, String> = BTreeMap::new();
+        map.insert("zubat".to_string(), "https://pokeapi.co/api/v2/pokemon/zubat/".to_string());
+        let info = get_info(&"zubat".to_string(), &map).unwrap();
+        assert_eq!(info["id"], 41);
+    }
 
     #[test]
     fn test_get_all_pokemon() {
