@@ -1,5 +1,4 @@
 use std::io;
-use std::collections::BTreeMap;
 use futures::executor::block_on;
 use tui::Terminal;
 use termion::event::Key;
@@ -11,29 +10,10 @@ use termion::screen::AlternateScreen;
 use termion::input::MouseTerminal;
 use crate::ui::utils::event::{Event, Events};
 use tui::style::{Color, Modifier, Style};
+use std::process;
+use serde_json;
 //This module import is probably too verbose...
 use super::super::pokedex::lists;
-
-fn name_ify (s1: String) -> String {
-    let mut c = s1.chars();
-    //Get the first char 
-    match c.next() {
-        None => String::new(),
-        Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
-    }
-}
-
-
-fn pokemon_names() -> Vec<String> {
-    let map: BTreeMap<String, String> = lists::get_all_pokemon().unwrap();
-    let mut names: Vec<String> = Vec::new();
-    for name in map.keys() {
-        let mut s = name.clone();
-        s = name_ify(s);
-        names.push(s);
-    }
-    names
-}
 
 struct Namelist {
     names: Vec<String>,
@@ -41,23 +21,37 @@ struct Namelist {
 }
 
 impl Namelist {
-    async fn new() -> Namelist {
+    async fn new(pokedex: &lists::Pokedex) -> Namelist {
         Namelist {
-            names: pokemon_names(),
+            names: pokedex.get_pokemon_names(),
             selected: None
         }
     }   
 }
 
+struct Info_text<'b> {
+    texts: Vec<Text<'b>>
+}
+
+impl Info_text<'_> {
+    fn add_text(&mut self, s: String) {
+        let text = Text::raw(s);
+        self.texts.push(text);
+    }
+    fn clear_text(&mut self) {
+        self.texts = Vec::new();
+    }
+}
+
 pub fn runner() -> Result<(), io::Error> {
     println!("... Loading pokemon dictionary ...");
-    let name_list = block_on(Namelist::new());
-    draw_ui(name_list)?;
+    let mut pokedex = block_on(lists::Pokedex::new());
+    draw_ui(pokedex)?;
     Ok(())
 }
 
 ///Handles drawing the ui.
-fn draw_ui(mut name_list: Namelist) -> Result<(), io::Error> {
+fn draw_ui(mut pokedex: lists::Pokedex) -> Result<(), io::Error> {
     let stdout = io::stdout().into_raw_mode()?;
     let stdout = MouseTerminal::from(stdout);
     let stdout = AlternateScreen::from(stdout);
@@ -66,6 +60,9 @@ fn draw_ui(mut name_list: Namelist) -> Result<(), io::Error> {
     terminal.hide_cursor()?;
 
     let events = Events::new();
+    
+    let mut name_list = block_on(Namelist::new(&pokedex));
+    let mut info_text = Info_text{texts: Vec::new()};
     
     //Main event loop
     loop {
@@ -90,12 +87,8 @@ fn draw_ui(mut name_list: Namelist) -> Result<(), io::Error> {
                 .highlight_style(name_list_style.fg(Color::LightGreen).modifier(Modifier::BOLD))
                 .highlight_symbol(">")
                 .render(&mut f, chunks[0]);
-
-            let text= [
-                Text::raw("First line\n"),
-                Text::styled("Second line\n", Style::default().fg(Color::Red))
-            ];
-            Paragraph::new(text.iter())
+            
+            Paragraph::new(info_text.texts.iter())
                 .block(Block::default().borders(Borders::ALL).title("Info"))
                 .wrap(true)
                 .render(&mut f, chunks[1]);
@@ -107,6 +100,7 @@ fn draw_ui(mut name_list: Namelist) -> Result<(), io::Error> {
                     break;
                 }
                 Key::Down => {
+                    info_text.clear_text();
                     name_list.selected = if let Some(selected) = name_list.selected {
                         if selected >= name_list.names.len() - 1 {
                             Some(0)
@@ -117,7 +111,16 @@ fn draw_ui(mut name_list: Namelist) -> Result<(), io::Error> {
                         Some(0)
                     }
                 }
+                Key::Right => {
+                    let selected_name = &name_list.names[name_list.selected.unwrap()];
+                    let mut name_info = pokedex.get_info(selected_name).unwrap_or_else( |err| {
+                        println!("{:?}", err);
+                        process::exit(1);
+                    });
+                    info_text.add_text(serde_json::to_string_pretty(&name_info).unwrap());
+                }
                 Key::Up => {
+                    info_text.clear_text();
                     name_list.selected = if let Some(selected) = name_list.selected {
                         if selected <= 0 {
                             Some(name_list.names.len() - 1)
