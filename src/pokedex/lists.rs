@@ -60,6 +60,15 @@ pub fn get_all_pokemon() -> Result<BTreeMap<String,String>, Box<dyn error::Error
 #[cfg(test)]
 mod tests {
     use super::*;
+    
+
+    #[test]
+    fn test_get_info() {
+        let mut map:BTreeMap<String, String> = BTreeMap::new();
+        map.insert("zubat".to_string(), "https://pokeapi.co/api/v2/pokemon/zubat/".to_string());
+        let info = get_info(&"zubat".to_string(), &map).unwrap();
+        assert_eq!(info["id"], 41);
+    }
 
     #[test]
     fn test_get_all_pokemon() {
