@@ -24,7 +24,7 @@ impl Namelist {
     async fn new(pokedex: &lists::Pokedex) -> Namelist {
         Namelist {
             names: pokedex.get_pokemon_names(),
-            selected: None
+            selected: Some(0)
         }
     }   
 }
