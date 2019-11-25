@@ -12,36 +12,10 @@ use crate::ui::utils::event::{Event, Events};
 use tui::style::{Color, Modifier, Style};
 use std::process;
 use serde_json;
+use crate::ui::panels;
 //This module import is probably too verbose...
 use super::super::pokedex::lists;
 
-struct Namelist {
-    names: Vec<String>,
-    selected: Option<usize>,
-}
-
-impl Namelist {
-    async fn new(pokedex: &lists::Pokedex) -> Namelist {
-        Namelist {
-            names: pokedex.get_pokemon_names(),
-            selected: Some(0)
-        }
-    }   
-}
-
-struct Info_text<'b> {
-    texts: Vec<Text<'b>>
-}
-
-impl Info_text<'_> {
-    fn add_text(&mut self, s: String) {
-        let text = Text::raw(s);
-        self.texts.push(text);
-    }
-    fn clear_text(&mut self) {
-        self.texts = Vec::new();
-    }
-}
 
 pub fn runner() -> Result<(), io::Error> {
     println!("... Loading pokemon dictionary ...");
@@ -61,8 +35,8 @@ fn draw_ui(mut pokedex: lists::Pokedex) -> Result<(), io::Error> {
 
     let events = Events::new();
     
-    let mut name_list = block_on(Namelist::new(&pokedex));
-    let mut info_text = Info_text{texts: Vec::new()};
+    let mut name_list = block_on(panels::Namelist::new(&pokedex));
+    let mut info_text = panels::Info_text{texts: Vec::new()};
     
     //Main event loop
     loop {
@@ -93,6 +67,9 @@ fn draw_ui(mut pokedex: lists::Pokedex) -> Result<(), io::Error> {
                 .block(Block::default().borders(Borders::ALL).title("Info"))
                 .wrap(true)
                 .render(&mut f, chunks[1]);
+        }).unwrap_or_else( |err| {
+            println!("Error rendering tui: {:?}", err);
+            process::exit(1);
         });
 
         match events.next().unwrap() {
