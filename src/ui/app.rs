@@ -1,5 +1,5 @@
 use std::io;
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use futures::executor::block_on;
 use tui::Terminal;
 use termion::event::Key;
@@ -15,7 +15,7 @@ use tui::style::{Color, Modifier, Style};
 use super::super::pokedex::lists;
 
 fn pokemon_names() -> Vec<String> {
-    let map: HashMap<String, String> = lists::get_all_pokemon().unwrap();
+    let map: BTreeMap<String, String> = lists::get_all_pokemon().unwrap();
     map.keys().cloned().collect()
 }
 
@@ -54,7 +54,7 @@ fn draw_ui(mut name_list: Namelist) -> Result<(), io::Error> {
     loop {
         terminal.draw(|mut f| {
             let chunks = Layout::default()
-                .direction(Direction::Vertical)
+                .direction(Direction::Horizontal)
                 .margin(1)
                 .constraints(
                 [
