@@ -18,7 +18,7 @@ fn populate_map(page: &serde_json::Value, map: &mut BTreeMap<String,String>) {
   for pokemon in page["results"].as_array().unwrap() {
     let pokemon_object = pokemon.as_object().unwrap();
         map.insert(
-            pokemon_object["name"].to_string().replace("\"", ""),
+            name_ify(pokemon_object["name"].to_string().replace("\"", "")),
             pokemon_object["url"].to_string().replace("\"","")
         );
   }
@@ -44,7 +44,7 @@ impl Pokedex {
   }
 
   ///Returns JSON formatted String containing information about the given pokemon
-  pub async fn get_info(&self, name: &str) -> Result<serde_json::Value, String> {
+  pub fn get_info(&self, name: &str) -> Result<serde_json::Value, String> {
       if !self.lookup.contains_key(&name.to_string()){
           return Err("Name not found".to_string());
       }
@@ -55,7 +55,7 @@ impl Pokedex {
   }
 
   ///Returns a HashMap<String,String> of all of the pokemon and their urls
-  fn get_all_pokemon(&self) -> Result<BTreeMap<String,String>, Box<dyn error::Error>>{ 
+  pub fn get_all_pokemon(&self) -> Result<BTreeMap<String,String>, Box<dyn error::Error>>{ 
     let mut pokemon_map:BTreeMap<String, String> = BTreeMap::new();
     let url = "https://pokeapi.co/api/v2/pokemon/"; 
     let mut data = get_page(&url).unwrap();
@@ -77,7 +77,6 @@ impl Pokedex {
     let mut names: Vec<String> = Vec::new();
     for name in self.lookup.keys() {
         let mut s = name.clone();
-        s = name_ify(s);
         names.push(s);
     }
     names
@@ -92,7 +91,7 @@ mod tests {
     #[test]
     fn test_get_info() {
         let pokedex = block_on(Pokedex::new());
-        let info = block_on(pokedex.get_info(&"zubat".to_string())).unwrap();
+        let info = pokedex.get_info(&"Zubat".to_string()).unwrap();
         assert_eq!(info["id"], 41);
     }
 
