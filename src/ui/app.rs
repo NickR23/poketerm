@@ -1,4 +1,7 @@
 use std::io;
+use spinners::{Spinner, Spinners};
+use std::thread::sleep;
+use std::time::Duration;
 use futures::executor::block_on;
 use tui::Terminal;
 use termion::event::Key;
@@ -22,8 +25,9 @@ struct frame_list{
 }
 
 pub fn runner() -> Result<(), io::Error> {
-    println!("... Loading pokemon dictionary ...");
+    let sp = Spinner::new(Spinners::Dots9, "Loading Pokedex".into());
     let pokedex = block_on(lists::Pokedex::new());
+    sp.stop();
     draw_ui(pokedex)?;
     Ok(())
 }
