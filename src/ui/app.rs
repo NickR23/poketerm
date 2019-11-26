@@ -1,13 +1,11 @@
 use std::io;
 use spinners::{Spinner, Spinners};
-use std::thread::sleep;
-use std::time::Duration;
 use futures::executor::block_on;
 use tui::Terminal;
 use termion::event::Key;
 use tui::backend::TermionBackend;
 use termion::raw::IntoRawMode;
-use tui::widgets::{Widget, Block, Borders, Text, Paragraph, SelectableList};
+use tui::widgets::{Widget, Block, Borders, Paragraph, SelectableList};
 use tui::layout::{Layout, Constraint, Direction};
 use termion::screen::AlternateScreen;
 use termion::input::MouseTerminal;
@@ -19,16 +17,12 @@ use crate::ui::panels;
 //This module import is probably too verbose...
 use super::super::pokedex::lists;
 
-
-struct frame_list{
-    frames: Vec<Box<dyn Widget>>
-}
-
 pub fn runner() -> Result<(), io::Error> {
     let sp = Spinner::new(Spinners::Dots9, "Loading Pokedex".into());
     let pokedex = block_on(lists::Pokedex::new());
     sp.stop();
     draw_ui(pokedex)?;
+    println!("\n");
     Ok(())
 }
 
@@ -44,7 +38,7 @@ fn draw_ui(pokedex: lists::Pokedex) -> Result<(), io::Error> {
     let events = Events::new();
     
     let mut name_list = block_on(panels::Namelist::new(&pokedex));
-    let mut info_text = panels::Info_text{texts: Vec::new()};
+    let mut info_text = panels::InfoText{texts: Vec::new()};
     
     //Main event loop
     loop {
