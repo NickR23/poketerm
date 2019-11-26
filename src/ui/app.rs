@@ -1,10 +1,11 @@
 use std::io;
+use spinners::{Spinner, Spinners};
 use futures::executor::block_on;
 use tui::Terminal;
 use termion::event::Key;
 use tui::backend::TermionBackend;
 use termion::raw::IntoRawMode;
-use tui::widgets::{Widget, Block, Borders, Text, Paragraph, SelectableList};
+use tui::widgets::{Widget, Block, Borders, Paragraph, SelectableList};
 use tui::layout::{Layout, Constraint, Direction};
 use termion::screen::AlternateScreen;
 use termion::input::MouseTerminal;
@@ -16,16 +17,17 @@ use crate::ui::panels;
 //This module import is probably too verbose...
 use super::super::pokedex::lists;
 
-
 pub fn runner() -> Result<(), io::Error> {
-    println!("... Loading pokemon dictionary ...");
-    let mut pokedex = block_on(lists::Pokedex::new());
+    let sp = Spinner::new(Spinners::Dots9, "Loading Pokedex".into());
+    let pokedex = block_on(lists::Pokedex::new());
+    sp.stop();
     draw_ui(pokedex)?;
+    println!("\n");
     Ok(())
 }
 
 ///Handles drawing the ui.
-fn draw_ui(mut pokedex: lists::Pokedex) -> Result<(), io::Error> {
+fn draw_ui(pokedex: lists::Pokedex) -> Result<(), io::Error> {
     let stdout = io::stdout().into_raw_mode()?;
     let stdout = MouseTerminal::from(stdout);
     let stdout = AlternateScreen::from(stdout);
@@ -36,7 +38,7 @@ fn draw_ui(mut pokedex: lists::Pokedex) -> Result<(), io::Error> {
     let events = Events::new();
     
     let mut name_list = block_on(panels::Namelist::new(&pokedex));
-    let mut info_text = panels::Info_text{texts: Vec::new()};
+    let mut info_text = panels::InfoText{texts: Vec::new()};
     
     //Main event loop
     loop {
@@ -91,7 +93,7 @@ fn draw_ui(mut pokedex: lists::Pokedex) -> Result<(), io::Error> {
                 }
                 Key::Right => {
                     let selected_name = &name_list.names[name_list.selected.unwrap()];
-                    let mut name_info = pokedex.get_info(selected_name).unwrap_or_else( |err| {
+                    let name_info = pokedex.get_info(selected_name).unwrap_or_else( |err| {
                         println!("{:?}", err);
                         process::exit(1);
                     });
