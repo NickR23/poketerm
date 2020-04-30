@@ -4,3 +4,5 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 <h2 align="center">Pokéterm is a pokedex completely in your terminal!</a>
+
+![Screenshot](screenshot.png)
